@@ -2,4 +2,6 @@ numpy
 matplotlib
 pandas
 scikit-learn
+jupyterlab
 torch==1.11.0
+pandas-datareader
