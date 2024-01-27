@@ -1,13 +1,30 @@
 # Dataloader
 
 - `embed`
-    1. `timeF`: This is a form of temporal feature encoding. In this method, the model adds temporal features to the time series values. These serve as “positional encodings” for the Transformer encoder and decoder. Examples are “day of the month”, “month of the year”, etc. as scalar values (and then stacked together as a vector). For instance, if a given time-series value was obtained on the 11th of August, then one could have [11, 8] as time feature vector (11 being “day of the month”, 8 being “month of the year”).
+    1. 'timeF': This is a form of temporal feature encoding. In this method, the model adds temporal features to the time series values. These serve as “positional encodings” for the Transformer encoder and decoder. Examples are “day of the month”, “month of the year”, etc. as scalar values (and then stacked together as a vector). For instance, if a given time-series value was obtained on the 11th of August, then one could have [11, 8] as time feature vector (11 being “day of the month”, 8 being “month of the year”).
 
-    2. `fixed`: This refers to fixed positional encoding, which is used in vanilla transformers. In this method, the position encoding is fixed and does not change during training. It's often used to inject information about the relative or absolute position of the tokens in the sequence.
+    2. 'fixed': This refers to fixed positional encoding, which is used in vanilla transformers. In this method, the position encoding is fixed and does not change during training. It's often used to inject information about the relative or absolute position of the tokens in the sequence.
 
-    3. `learned`: This refers to learned positional encoding. Unlike fixed encoding, learned positional encoding allows transformers to be more flexible and better exploit sequential ordering information. The model learns the positional encodings during training, which can potentially lead to a better representation of the time information.
+    3. 'learned': This refers to learned positional encoding. Unlike fixed encoding, learned positional encoding allows transformers to be more flexible and better exploit sequential ordering information. The model learns the positional encodings during training, which can potentially lead to a better representation of the time information.
 
     Each of these methods has its own advantages and is used based on the specific requirements of the time series analysis task.
+
+- `freq`
+    Only activate if `embed` is set to 'timeF'.
+
+    The following frequencies are supported:
+        Y   - yearly
+            alias: A
+        M   - monthly
+        W   - weekly
+        D   - daily
+        B   - business days
+        H   - hourly
+        T   - minutely
+            alias: min
+        S   - secondly
+
+ # forecasting task
 
 # PatchTST
 - `decomposition`
