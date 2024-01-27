@@ -32,9 +32,9 @@ parser.add_argument('--model', type=str, required=True, default='Autoformer',
                     help='model name, options: [Autoformer, Informer, Transformer]')
 
 # data loader
-parser.add_argument('--data', type=str, required=True, default='ETTm1', help='dataset type')
-parser.add_argument('--root_path', type=str, default='./data/ETT/', help='root path of the data file')
-parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
+parser.add_argument('--data', type=str, required=True, default='costom', help='dataset type')
+parser.add_argument('--root_path', type=str, default='./data/', help='root path of the data file')
+parser.add_argument('--data_path', type=str, default='^IXIC.csv', help='data file')
 parser.add_argument('--features', type=str, default='M',
                     help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
 parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
@@ -105,7 +105,7 @@ parser.add_argument('--test_flop', action='store_true', default=False, help='See
 
 configs = parser.parse_args()
 
-# initialize parameters
+# initialize model parameters
 c_in:int
 context_window:int
 target_window:int
@@ -140,7 +140,8 @@ revin = True
 affine = True
 subtract_last = False
 verbose:bool=False
-# load parameters
+
+# load model parameters
 c_in = configs.enc_in
 context_window = configs.seq_len
 target_window = configs.pred_len
@@ -171,12 +172,23 @@ fix_seed = configs.random_seed
 random.seed(fix_seed)
 torch.manual_seed(fix_seed)
 np.random.seed(fix_seed)
+
 model = PatchTST_backbone(c_in=c_in, context_window = context_window, 
-                          target_window=target_window, patch_len=patch_len, stride=stride, 
-                            max_seq_len=max_seq_len, n_layers=n_layers, d_model=d_model,
-                            n_heads=n_heads, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm, attn_dropout=attn_dropout,
-                            dropout=dropout, act=act, key_padding_mask=key_padding_mask, padding_var=padding_var, 
-                            attn_mask=attn_mask, res_attention=res_attention, pre_norm=pre_norm, store_attn=store_attn,
-                            pe=pe, learn_pe=learn_pe, fc_dropout=fc_dropout, head_dropout=head_dropout, padding_patch = padding_patch,
-                            pretrain_head=pretrain_head, head_type=head_type, individual=individual, revin=revin, affine=affine,
-                            subtract_last=subtract_last, verbose=verbose).float()
+    target_window=target_window, patch_len=patch_len, stride=stride, 
+    max_seq_len=max_seq_len, n_layers=n_layers, d_model=d_model,
+    n_heads=n_heads, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm, attn_dropout=attn_dropout,
+    dropout=dropout, act=act, key_padding_mask=key_padding_mask, padding_var=padding_var, 
+    attn_mask=attn_mask, res_attention=res_attention, pre_norm=pre_norm, store_attn=store_attn,
+    pe=pe, learn_pe=learn_pe, fc_dropout=fc_dropout, head_dropout=head_dropout, padding_patch = padding_patch,
+    pretrain_head=pretrain_head, head_type=head_type, individual=individual, revin=revin, affine=affine,
+    subtract_last=subtract_last, verbose=verbose).float()
+
+
+# load GPU parameters
+use_gpu = True if torch.cuda.is_available() and configs.use_gpu else False
+if use_gpu and configs.use_multi_gpu:
+    configs.dvices = configs.devices.replace(' ', '')
+    device_ids = configs.devices.split(',')
+    device_ids = [int(id_) for id_ in device_ids]
+    model = nn.DataParallel(model, device_ids=device_ids)
+
